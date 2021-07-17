@@ -67,7 +67,7 @@ public struct Shell {
     input: Input? = nil,
     environmentVariables: [String: String]? = nil
   ) async throws -> String {
-    return try await withUnsafeThrowingContinuation { continuation in
+    return try await withCheckedThrowingContinuation { continuation in
       let task = Process()
       task.launchPath = configuration.shellPath
       let command: Command = .init()
