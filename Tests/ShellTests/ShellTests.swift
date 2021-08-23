@@ -27,5 +27,10 @@ final class ShellTests: XCTestCase {
     output = try await shell.run("ls", arguments: "-la", at: "/")
     XCTAssert(output.contains("Volumes"))
   }
+
+  func testSimctlList() async throws {
+    let output = try await shell.run("xcrun simctl list -j")
+    print(output)
+  }
 }
 

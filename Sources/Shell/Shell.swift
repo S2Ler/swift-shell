@@ -69,14 +69,11 @@ public struct Shell {
   ) async throws -> String {
     return try await withCheckedThrowingContinuation { continuation in
       let task = Process()
-      task.launchPath = configuration.shellPath
+      task.executableURL = URL(fileURLWithPath: configuration.shellPath)
       let command: Command = .init()
 
       if let path = path {
-        command
-          .append("cd ")
-          .append(argument: path)
-          .append(" && ")
+        task.currentDirectoryURL = URL(fileURLWithPath: path, isDirectory: true)
       }
       command.append(function)
       command.append(" ")
@@ -87,16 +84,23 @@ public struct Shell {
       task.environment = environmentVariables
 
       let outputPipe = Pipe()
+      var outputData = Data()
+
+      outputPipe.fileHandleForReading.readabilityHandler = { handler in
+        outputData.append(handler.availableData)
+      }
       let errorPipe = Pipe()
+      var errorData = Data()
+      errorPipe.fileHandleForReading.readabilityHandler = { handler in
+        errorData.append(handler.availableData)
+      }
 
       task.standardOutput = outputPipe
       task.standardInput = input?.processInput
       task.standardError = errorPipe
       task.terminationHandler = { process in
-        let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
-        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
         if task.terminationStatus == 0 {
-          continuation.resume(returning: String(data: data, encoding: .utf8) ?? "")
+          continuation.resume(returning: String(data: outputData, encoding: .utf8) ?? "")
         }
         else {
           continuation.resume(throwing: ShellError.standardError(String(data: errorData, encoding: .utf8)!))
@@ -105,6 +109,7 @@ public struct Shell {
 
       do {
         try task.run()
+        task.waitUntilExit()
       }
       catch {
         continuation.resume(throwing: error)
