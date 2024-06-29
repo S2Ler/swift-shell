@@ -80,17 +80,17 @@ public struct Shell {
       command.append(argument: arguments)
 
       task.arguments = [configuration.shellRunCommandParameter, command.rawCommand]
-
       task.environment = environmentVariables
 
       let outputPipe = Pipe()
-      var outputData = Data()
+      nonisolated(unsafe) var outputData = Data()
 
       outputPipe.fileHandleForReading.readabilityHandler = { handler in
         outputData.append(handler.availableData)
       }
+
       let errorPipe = Pipe()
-      var errorData = Data()
+      nonisolated(unsafe) var errorData = Data()
       errorPipe.fileHandleForReading.readabilityHandler = { handler in
         errorData.append(handler.availableData)
       }

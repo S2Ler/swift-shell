@@ -1,11 +1,11 @@
-// swift-tools-version:5.4
+// swift-tools-version:6.0
 
 import PackageDescription
 
 let package = Package(
   name: "swift-shell",
   platforms: [
-    .macOS(.v10_13),
+    .macOS(.v15),
   ],
   products: [
     .library(
@@ -17,19 +17,11 @@ let package = Package(
   targets: [
     .target(
       name: "Shell",
-      dependencies: [],
-      swiftSettings: [.unsafeFlags([
-        "-Xfrontend", "-enable-experimental-concurrency",
-        "-Xfrontend", "-disable-availability-checking",
-      ])]
+      dependencies: []
     ),
     .testTarget(
       name: "ShellTests",
-      dependencies: ["Shell"],
-      swiftSettings: [.unsafeFlags([
-        "-Xfrontend", "-enable-experimental-concurrency",
-        "-Xfrontend", "-disable-availability-checking",
-      ])]
+      dependencies: ["Shell"]
     ),
   ]
 )

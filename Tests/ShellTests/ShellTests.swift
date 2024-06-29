@@ -1,36 +1,36 @@
-import XCTest
+import Testing
+import Foundation
+
 @testable import Shell
 
-final class ShellTests: XCTestCase {
-  func testSimpleOutput() async throws {
+struct ShellTests {
+  @Test func simpleOutput() async throws {
     let actual = try await shell.run("pwd")
-    XCTAssertEqual(actual, "/private/tmp\n")
+    #expect(actual == "/private/tmp\n")
   }
 
-  func testNonDefaultShell() async throws {
+  @Test func nonDefaultShell() async throws {
     let shell = Shell(configuration: .sh)
     let actual = try await shell.run("pwd")
-    XCTAssertEqual(actual, "/private/tmp\n")
+    #expect(actual == "/private/tmp\n")
   }
 
-  func testPbCopy() async throws {
+  @Test func pbCopy() async throws {
     let expected = "Hello World"
     try await shell.run("pbcopy", input: .string(expected))
     let actual = try await shell.run("pbpaste")
-    XCTAssertEqual(expected, actual)
+    #expect(expected == actual)
   }
 
-  func testLsList() async throws {
+  @Test func lsList() async throws {
     var output = try await shell.run("ls -la", at: "/")
-    XCTAssert(output.contains("Volumes"))
-
+    #expect(output.contains("Volumes"))
     output = try await shell.run("ls", arguments: "-la", at: "/")
-    XCTAssert(output.contains("Volumes"))
+    #expect(output.contains("Volumes"))
   }
 
-  func testSimctlList() async throws {
+  @Test func simctlList() async throws {
     let output = try await shell.run("xcrun simctl list -j")
-    print(output)
+    #expect(output.contains("maxRuntimeVersionString"))
   }
 }
-
