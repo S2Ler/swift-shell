@@ -48,12 +48,12 @@ public struct Shell: Sendable {
   }
 
   public enum ShellError: LocalizedError {
-    case standardError(String)
+    case standardError(stdOut: String, stdErr: String)
 
     public var errorDescription: String? {
       switch self {
-      case .standardError(let string):
-        return string
+      case .standardError(let stdOut, let stdErr):
+        return "\(stdOut)\n\n\(stdErr)"
       }
     }
   }
@@ -108,7 +108,18 @@ public struct Shell: Sendable {
           continuation.resume(returning: String(data: outputData, encoding: .utf8) ?? "")
         }
         else {
-          continuation.resume(throwing: ShellError.standardError(String(data: errorData, encoding: .utf8)!))
+          continuation.resume(
+            throwing: ShellError.standardError(
+              stdOut: String(
+                data: outputData,
+                encoding: .utf8
+              )!,
+              stdErr: String(
+                data: errorData,
+                encoding: .utf8
+              )!
+            )
+          )
         }
       }
 
