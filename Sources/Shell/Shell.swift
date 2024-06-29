@@ -7,13 +7,13 @@ internal extension Pipe {
   }
 }
 
-public protocol ShellArgumentConvertible {
+public protocol ShellArgumentConvertible: Sendable {
   var shellArgument: String { get }
 }
 
 public let shell: Shell = .init()
 
-public struct Shell {
+public struct Shell: Sendable {
   public final class Command {
     fileprivate var rawCommand: String = ""
     public init() {}
@@ -29,9 +29,14 @@ public struct Shell {
     }
   }
 
-  public struct Configuration {
-    let shellPath: String
-    let shellRunCommandParameter: String
+  public struct Configuration: Sendable {
+    public let shellPath: String
+    public let shellRunCommandParameter: String
+
+    public init(shellPath: String, shellRunCommandParameter: String) {
+      self.shellPath = shellPath
+      self.shellRunCommandParameter = shellRunCommandParameter
+    }
 
     public static var bash: Configuration {
       .init(shellPath: "/bin/bash", shellRunCommandParameter: "-c")
